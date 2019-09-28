@@ -73,7 +73,7 @@ class SimpleMFRC522:
     id = ''.join(format(x, '02x') for x in uid)
     self.READER.MFRC522_SelectTag(uid)
     text_read = ''
-	status = self.READER.MI_OK #self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1B, 1, self.KEY, uid)
+    status = self.READER.MI_OK #self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1B, 1, self.KEY, uid)
     data = []
     if status == self.READER.MI_OK:
         for block_num in self.BLOCK_ADDRS_TEST:
