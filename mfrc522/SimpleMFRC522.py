@@ -20,17 +20,15 @@ class SimpleMFRC522:
           id, text = self.read_no_block()
       return id, text
 
-  def readtest(self):
-      id, text = self.read_test_no_block()
-      while not id:
-          id, text = self.read_test_no_block()
-      return id, text
-
   def read_id(self):
     id = self.read_id_no_block()
     while not id:
       id = self.read_id_no_block()
     return id
+
+  def connected(self):
+    (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
+    return status == self.READER.MI_OK
 
   def read_id_no_block(self):
       (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
@@ -40,7 +38,7 @@ class SimpleMFRC522:
       if status != self.READER.MI_OK:
           return None
       return self.uid_to_num(uid)
-  
+
   def read_no_block(self):
     (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
     if status != self.READER.MI_OK:
@@ -62,30 +60,7 @@ class SimpleMFRC522:
              text_read += ''.join(chr(i) if i > 31 else '' for i in data)
     self.READER.MFRC522_StopCrypto1()
     return id, text_read
-	
-  def read_test_no_block(self):
-    (status, TagType) = self.READER.MFRC522_Request(self.READER.PICC_REQIDL)
-    if status != self.READER.MI_OK:
-        return None, None
-    (status, uid) = self.READER.MFRC522_Anticoll()
-    if status != self.READER.MI_OK:
-        return None, None
-    id = ''.join(format(x, '02x') for x in uid)
-    self.READER.MFRC522_SelectTag(uid)
-    text_read = ''
-    status = self.READER.MI_OK #self.READER.MFRC522_Auth(self.READER.PICC_AUTHENT1B, 1, self.KEY, uid)
-    data = []
-    if status == self.READER.MI_OK:
-        for block_num in self.BLOCK_ADDRS_TEST:
-            block = self.READER.MFRC522_Read(block_num) 
-            if block:
-                data = block
-            if data:
-                text_read += str(block_num) + ': ' + ''.join(chr(i) for i in data) + chr(10)
-
-    self.READER.MFRC522_StopCrypto1()
-    return id, text_read
-    
+  
   def write(self, text):
       id, text_in = self.write_no_block(text)
       while not id:
